@@ -81,6 +81,7 @@ ORDER BY
     time;
 
 -- Fetching ongoing class --
+
 SELECT
     day AS Day,
     time AS Time,
