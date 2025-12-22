@@ -55,22 +55,24 @@ except Exception as e:
 
 
 # fetching currently running class
+
 try:
-    running_query = f"""
+    running_query = """
     SELECT
-    day AS Day,
-    time AS Time,
-    module_title AS Subject,
-    room AS Class,
-    lecturer,
-    class_type AS ClassType
-FROM bscit_sem3_timetable
-WHERE day = LOWER(TO_CHAR(CURRENT_DATE, 'Dy'))
-AND CURRENT_TIME::time BETWEEN
-    split_part(time, '-', 1)::time
-    AND
-    split_part(time, '-', 2)::time;
+        day AS day,
+        time AS time,
+        module_title AS subject,
+        room AS room,
+        lecturer AS lecturer,
+        class_type AS classtype
+    FROM bscit_sem3_timetable
+    WHERE
+        UPPER(day) = UPPER(TO_CHAR(CURRENT_DATE, 'DY'))
+        AND CURRENT_TIME BETWEEN
+            TRIM(split_part(time, '-', 1))::time
+            AND TRIM(split_part(time, '-', 2))::time;
     """
+
     running_df = fetch_query(running_query)
 
     st.subheader("Current Running Class")
@@ -79,12 +81,10 @@ AND CURRENT_TIME::time BETWEEN
         st.info("No class is running right now.")
     else:
         row = running_df.iloc[0]
-        st.success(
-            f"📖 **{row['subject_name']}**\n\n"
-            f"👨‍🏫 Teacher: {row['teacher_name']}\n\n"
-            f"🏫 Room: {row['room']}\n\n"
-            f"⏰ {row['start_time']} — {row['end_time']}"
-        )
-
+        st.dataframe(
+            running_df,
+    use_container_width=True,
+    hide_index=True)
+              
 except Exception as e:
     st.error(f"Unexpected error: {e}")
